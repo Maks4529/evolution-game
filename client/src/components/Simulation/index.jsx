@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import Food from '../Food';
 import styles from './Simulation.module.css';
 
 class Creature {
@@ -8,7 +9,9 @@ class Creature {
     this.angle = 0;
     this.size = 10;
     this.speed = 2;
-    this.color = `rgb(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)})`;
+    this.color = `rgb(${Math.floor(Math.random() * 256)}, ${Math.floor(
+      Math.random() * 256
+    )}, ${Math.floor(Math.random() * 256)})`;
   }
 
   draw (ctx) {
@@ -27,17 +30,17 @@ class Creature {
     ctx.stroke();
 
     ctx.restore();
-  };
+  }
 
-  update(canvasWidth, canvasHeight){
+  update (canvasWidth, canvasHeight) {
     this.x += Math.cos(this.angle) * this.speed;
     this.y += Math.sin(this.angle) * this.speed;
 
-    if(this.x > canvasWidth) this.x = 0;
-    if(this.x < 0) this.x = canvasWidth;
-    if(this.y > canvasHeight) this.y = 0;
-    if(this.y < 0) this.y = canvasHeight;
-  };
+    if (this.x > canvasWidth) this.x = 0;
+    if (this.x < 0) this.x = canvasWidth;
+    if (this.y > canvasHeight) this.y = 0;
+    if (this.y < 0) this.y = canvasHeight;
+  }
 }
 
 function Simulation () {
@@ -49,28 +52,30 @@ function Simulation () {
     let animationFrameId;
 
     const creaturesCount = 10;
-    const creatures = Array.from({length: creaturesCount}, () => {
-      const x = Math.random() * canvas.width;
-      const y = Math.random() * canvas.height;
+    const creatures = Array.from({ length: creaturesCount }, () => {
+      return new Creature(Math.random() * canvas.width, Math.random() * canvas.height);
+    });
 
-      const creature = new Creature(x, y);
-
-      creature.angle = Math.random() * Math.PI * 2;
-
-      return creature;
+    const foodCount = 30;
+    const foods = Array.from({length: foodCount}, () => {
+      return new Food(Math.random() * canvas.width, Math.random() * canvas.height);
     });
 
     const render = () => {
-        ctx.fillStyle = '#1e1e1e';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#1e1e1e';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        creatures.forEach((creature) => {
-          creature.angle += (Math.random() - 0.5) * 0.1;
-          creature.update(canvas.width, canvas.height);
-          creature.draw(ctx);
-        });
+      creatures.forEach(creature => {
+        creature.angle += (Math.random() - 0.5) * 0.1;
+        creature.update(canvas.width, canvas.height);
+        creature.draw(ctx);
+      });
 
-        animationFrameId = requestAnimationFrame(render);
+      foods.forEach(food => {
+        food.draw(ctx);
+      });
+
+      animationFrameId = requestAnimationFrame(render);
     };
 
     render();
@@ -78,12 +83,17 @@ function Simulation () {
     return () => cancelAnimationFrame(animationFrameId);
   }, []);
 
-  return(
+  return (
     <div className={styles.board}>
-        <h2 className={styles.mainTitle}>Evolutionary sandbox</h2>
-        <canvas ref={canvasRef} width='800' height='600' className={styles.canvas} />
+      <h2 className={styles.mainTitle}>Evolutionary sandbox</h2>
+      <canvas
+        ref={canvasRef}
+        width='800'
+        height='600'
+        className={styles.canvas}
+      />
     </div>
-  )
+  );
 }
 
 export default Simulation;
