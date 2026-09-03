@@ -1,47 +1,7 @@
 import { useEffect, useRef } from 'react';
+import Creature from '../Creature';
 import Food from '../Food';
 import styles from './Simulation.module.css';
-
-class Creature {
-  constructor (x, y) {
-    this.x = x;
-    this.y = y;
-    this.angle = 0;
-    this.size = 10;
-    this.speed = 2;
-    this.color = `rgb(${Math.floor(Math.random() * 256)}, ${Math.floor(
-      Math.random() * 256
-    )}, ${Math.floor(Math.random() * 256)})`;
-  }
-
-  draw (ctx) {
-    ctx.save();
-    ctx.translate(this.x, this.y);
-    ctx.rotate(this.angle);
-
-    ctx.beginPath();
-    ctx.moveTo(this.size, 0);
-    ctx.lineTo(-this.size, -this.size / 1.5);
-    ctx.lineTo(-this.size, this.size / 1.5);
-
-    ctx.fillStyle = this.color;
-    ctx.fill();
-    ctx.strokeStyle = 'white';
-    ctx.stroke();
-
-    ctx.restore();
-  }
-
-  update (canvasWidth, canvasHeight) {
-    this.x += Math.cos(this.angle) * this.speed;
-    this.y += Math.sin(this.angle) * this.speed;
-
-    if (this.x > canvasWidth) this.x = 0;
-    if (this.x < 0) this.x = canvasWidth;
-    if (this.y > canvasHeight) this.y = 0;
-    if (this.y < 0) this.y = canvasHeight;
-  }
-}
 
 function Simulation () {
   const canvasRef = useRef(null);
@@ -69,6 +29,20 @@ function Simulation () {
         creature.angle += (Math.random() - 0.5) * 0.1;
         creature.update(canvas.width, canvas.height);
         creature.draw(ctx);
+
+        for(let i = foods.length - 1; i >= 0 ; i--){
+          const food = foods[i];
+
+          const dx = creature.x - food.x;
+          const dy = creature.y - food.y;
+
+          const distance = Math.hypot(dx, dy);
+
+          if(distance < creature.size + food.radius){
+            foods.splice(i, 1);
+            foods.push(new Food(Math.random() * canvas.width, Math.random() * canvas.height));
+          }
+        }
       });
 
       foods.forEach(food => {
