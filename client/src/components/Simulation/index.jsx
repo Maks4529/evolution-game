@@ -6,46 +6,99 @@ import styles from './Simulation.module.css';
 function Simulation () {
   const canvasRef = useRef(null);
 
+  const creaturesRef = useRef([]);
+  const foodsRef = useRef([]);
+
+  const addCreatures = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    for (let i = 0; i < 5; i++) {
+      creaturesRef.current.push(
+        new Creature(
+          Math.random() * canvas.width,
+          Math.random() * canvas.height
+        )
+      );
+    }
+  };
+
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     let animationFrameId;
 
-    const creaturesCount = 10;
-    const creatures = Array.from({ length: creaturesCount }, () => {
-      return new Creature(Math.random() * canvas.width, Math.random() * canvas.height);
-    });
+    const init = () => {
+      creaturesRef.current = Array.from({ length: 10 }, () => {
+        return new Creature(
+          Math.random() * canvas.width,
+          Math.random() * canvas.height
+        );
+      });
 
-    const foodCount = 30;
-    const foods = Array.from({length: foodCount}, () => {
-      return new Food(Math.random() * canvas.width, Math.random() * canvas.height);
-    });
+      foodsRef.current = Array.from({ length: 30 }, () => {
+        return new Food(Math.random() * canvas.width, Math.random() * canvas.height);
+      });
+    };
+
+    init();
+
+    // const creaturesCount = 10;
+    // let creatures = Array.from({ length: creaturesCount }, () => {
+    //   return new Creature(
+    //     Math.random() * canvas.width,
+    //     Math.random() * canvas.height
+    //   );
+    // });
+
+    // const foodCount = 30;
+    // const foods = Array.from({ length: foodCount }, () => {
+    //   return new Food(
+    //     Math.random() * canvas.width,
+    //     Math.random() * canvas.height
+    //   );
+    // });
 
     const render = () => {
       ctx.fillStyle = '#1e1e1e';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      creatures.forEach(creature => {
+      creaturesRef.current.forEach(creature => {
         creature.angle += (Math.random() - 0.5) * 0.1;
         creature.update(canvas.width, canvas.height);
         creature.draw(ctx);
 
-        for(let i = foods.length - 1; i >= 0 ; i--){
-          const food = foods[i];
+        for (let i = foodsRef.current.length - 1; i >= 0; i--) {
+          const food = foodsRef.current[i];
 
           const dx = creature.x - food.x;
           const dy = creature.y - food.y;
 
           const distance = Math.hypot(dx, dy);
 
-          if(distance < creature.size + food.radius){
-            foods.splice(i, 1);
-            foods.push(new Food(Math.random() * canvas.width, Math.random() * canvas.height));
+          if (distance < creature.size + food.radius) {
+            foodsRef.current.splice(i, 1);
+            foodsRef.current.push(
+              new Food(
+                Math.random() * canvas.width,
+                Math.random() * canvas.height
+              )
+            );
+
+            creature.energy += 30;
+
+            if (creature.energy >= creature.maxEnergy) {
+              creature.energy = creature.maxEnergy;
+            }
           }
         }
       });
 
-      foods.forEach(food => {
+      creaturesRef.current = creaturesRef.current.filter(
+        creature => creature.energy > 0
+      );
+
+      foodsRef.current.forEach(food => {
         food.draw(ctx);
       });
 
@@ -60,6 +113,9 @@ function Simulation () {
   return (
     <div className={styles.board}>
       <h2 className={styles.mainTitle}>Evolutionary sandbox</h2>
+      <button onClick={addCreatures} className={styles.addCreaturesBtn}>
+        Spawn 5 Creatures
+      </button>
       <canvas
         ref={canvasRef}
         width='800'

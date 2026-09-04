@@ -10,6 +10,12 @@
     font-family: sans-serif;
 }
 
+.addCreaturesBtn {
+    margin-bottom: 15px;
+    padding: 8px 10px;
+    cursor: pointer;
+}
+
 .canvas {
     border: 2px solid #444;
     border-radius: 8px;
