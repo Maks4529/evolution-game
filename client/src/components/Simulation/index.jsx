@@ -43,29 +43,13 @@ function Simulation () {
 
     init();
 
-    // const creaturesCount = 10;
-    // let creatures = Array.from({ length: creaturesCount }, () => {
-    //   return new Creature(
-    //     Math.random() * canvas.width,
-    //     Math.random() * canvas.height
-    //   );
-    // });
-
-    // const foodCount = 30;
-    // const foods = Array.from({ length: foodCount }, () => {
-    //   return new Food(
-    //     Math.random() * canvas.width,
-    //     Math.random() * canvas.height
-    //   );
-    // });
-
     const render = () => {
       ctx.fillStyle = '#1e1e1e';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       creaturesRef.current.forEach(creature => {
         creature.angle += (Math.random() - 0.5) * 0.1;
-        creature.update(canvas.width, canvas.height);
+        creature.update(canvas.width, canvas.height, foodsRef.current);
         creature.draw(ctx);
 
         for (let i = foodsRef.current.length - 1; i >= 0; i--) {
