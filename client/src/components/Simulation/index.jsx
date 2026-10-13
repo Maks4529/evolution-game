@@ -47,8 +47,9 @@ function Simulation () {
       ctx.fillStyle = '#1e1e1e';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+      const newChildren = [];
+
       creaturesRef.current.forEach(creature => {
-        creature.angle += (Math.random() - 0.5) * 0.1;
         creature.update(canvas.width, canvas.height, foodsRef.current);
         creature.draw(ctx);
 
@@ -72,11 +73,20 @@ function Simulation () {
             creature.energy += 30;
 
             if (creature.energy >= creature.maxEnergy) {
-              creature.energy = creature.maxEnergy;
+              creature.energy = 50;
+
+              const child = creature.reproduce();
+              child.energy = 50;
+
+              newChildren.push(child);
             }
           }
         }
       });
+
+      if(newChildren.length > 0){
+        creaturesRef.current.push(...newChildren);
+      }
 
       creaturesRef.current = creaturesRef.current.filter(
         creature => creature.energy > 0
